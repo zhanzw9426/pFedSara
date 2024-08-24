@@ -10,11 +10,10 @@ class Server_pFedSara(Server_Base):
         for client in self.clients:
             client.train_maml(True)
         dicts = {-1:0}
-        for i in self.epochs:
+        for i in range(self.epochs+1):
             dicts[i] = 0
         for client in self.clients:
             dicts[client.tau] += 1
-        print(dicts)
         print(">> Initialization completed.")
 
     def train(self):
