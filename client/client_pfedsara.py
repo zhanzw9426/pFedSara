@@ -62,7 +62,6 @@ class Client_pFedSara(Client_Base):
             
     def train_maml(self, estimate=False):
         model_nouse = copy.deepcopy(self.model)
-        optimizer = PerFedAvgOptimizer(self.model.parameters(), finetune_lr=self.finetune_lr)
         optimizer_nouse = PerFedAvgOptimizer(model_nouse.parameters(), finetune_lr=self.finetune_lr)
         self.model.train()
         model_nouse.train()
@@ -80,19 +79,19 @@ class Client_pFedSara(Client_Base):
                 labels1 = labels1.to(self.device)
                 outputs = self.model(images1)
                 loss = self.criterion(outputs, labels1)
-                optimizer.zero_grad()
+                self.optimizer.zero_grad()
                 loss.backward()
-                optimizer.step()
+                self.optimizer.step()
 
                 images2, labels2 = next(iter(dataLoader_inner))
                 images2 = images2.to(self.device)
                 labels2 = labels2.to(self.device)
                 output = self.model(images2)
                 loss = self.criterion(output, labels2)
-                optimizer.zero_grad()
+                self.optimizer.zero_grad()
                 loss.backward()
                 utils.clone_model(current_model, self.model)
-                optimizer.step(eta=self.lr)
+                self.optimizer.step(eta=self.lr)
             
             for _ in range(self.heterogeneity):
                 for images1, labels1 in dataLoader:
@@ -188,5 +187,4 @@ class Client_pFedSara(Client_Base):
                 loss += loss.item() * labels.shape[0]
         loss = loss / total
         return loss
-
-
+    
